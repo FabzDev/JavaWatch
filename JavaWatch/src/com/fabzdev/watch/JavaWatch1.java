@@ -27,7 +27,7 @@ public class JavaWatch1 extends JPanel {
         g2d.setColor(Color.BLACK);
         g2d.fill(rect);
         
-        g2d.setColor(new Color(0, 0x80, 0));
+        g2d.setColor(new Color(0, 0x85, 0));
         int size = Math.min(getWidth(), getHeight());
         Rectangle frame = new Rectangle(1+getWidth()/2 - size/2, 1+getHeight()/2 - size/2, size-2, size-2);
 //        g2d.draw(frame);
