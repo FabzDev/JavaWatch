@@ -19,6 +19,7 @@ import java.awt.Stroke;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.util.Calendar;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -53,12 +54,14 @@ public class JavaWatch7 extends JPanel {
     int stMin = 5;
     int stSeg = 3;
 
-    //definiendo fuentes marca JavaWatch
     //definiendo variables de tiempo
     int hora;
     int min;
     int seg;
     Timer timer;
+    //definiendo BufferedImages
+    BufferedImage buffimg;
+    BufferedImage dayNightImg;
 
     public JavaWatch7() {
         super();
@@ -108,6 +111,7 @@ public class JavaWatch7 extends JPanel {
         return largeFont;
     }
 
+    //definiendo fuentes marca JavaWatch
     private Font getSmallFontTitle(Graphics2D g2d) {
         if (smallTitleFont != null) {
             return smallTitleFont;
@@ -132,15 +136,9 @@ public class JavaWatch7 extends JPanel {
         return largeTitleFont;
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        //creando objetos para dibujar
-        Graphics2D g2d = (Graphics2D) g;
-        Rectangle bounds = new Rectangle(getWidth(), getHeight());
-
-        //definiendo tamaño del reloj
-        int size = Math.min(bounds.width, bounds.height);
-        Rectangle frame = new Rectangle(bounds.width / 2 - size / 2, bounds.height / 2 - size / 2, size, size);
+    private void updateBackgroundImage(Rectangle bounds, Rectangle frame) {
+        buffimg = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = buffimg.createGraphics();
 
         //definiendo coordenadas
         int centerX = frame.x + frame.width / 2;
@@ -148,11 +146,15 @@ public class JavaWatch7 extends JPanel {
         double radius = frame.width / 2 - 10;
         double angle;
 
-        //definiendo tamaño de fuente
+        //definiendo grosores de linea
+        Stroke st = g2d.getStroke();
+        Stroke boldSt = new BasicStroke(2);
+
+        //obteniendo tamaño de fuente
         Font f;
-        if (size < 400) {
+        if (frame.width < 400) {
             f = getSmallFont(g2d);
-        } else if (size < 800) {
+        } else if (frame.width < 800) {
             f = getMediumFont(g2d);
         } else {
             f = getLargeFont(g2d);
@@ -161,10 +163,6 @@ public class JavaWatch7 extends JPanel {
 
         //obteniendo FontMetrics
         FontMetrics fm = g2d.getFontMetrics();
-
-        //definiendo grosores de linea
-        Stroke st = g2d.getStroke();
-        Stroke boldSt = new BasicStroke(2);
 
         //dibujando background
         g2d.setColor(backgroundColor);
@@ -234,16 +232,59 @@ public class JavaWatch7 extends JPanel {
         }
 
         //dibujar marca Javawatch
-        if (size < 400) {
+        if (frame.width < 400) {
             g2d.setFont(getSmallFontTitle(g2d));
-        } else if (size < 800) {
+        } else if (frame.width < 800) {
             g2d.setFont(getMediumFontTitle(g2d));
         } else {
             g2d.setFont(getLargeFontTitle(g2d));
         }
-        
         Rectangle2D borderTitle = g2d.getFontMetrics().getStringBounds("JavaWatch", g2d);
-        g2d.drawString("JavaWatch", (float)(centerX - borderTitle.getWidth() / 2), (float)(centerY + radius*0.3));
+        g2d.drawString("JavaWatch", (float) (centerX - borderTitle.getWidth() / 2), (float) (centerY + radius * 0.3));
+
+        //cerrar el entorno de dibujo e la imagen
+        g2d.dispose();
+    }
+
+    private void createDayNightImage(int size) {
+        dayNightImg = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = dayNightImg.createGraphics();
+
+        //firmamento
+        Paint savedPaint = g2d.getPaint();
+        GradientPaint gp = new GradientPaint(size / 2, size / 2 - size / 16, backgroundColor, size / 2, size, lblColor);
+        g2d.setPaint(gp);
+        g2d.fillRect(0, 0, size, size);
+
+        g2d.setPaint(savedPaint);
+        g2d.dispose();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        //creando objetos para dibujar
+        Graphics2D g2d = (Graphics2D) g;
+        Rectangle bounds = new Rectangle(getWidth(), getHeight());
+
+        //definiendo tamaño del frame
+        int size = Math.min(bounds.width, bounds.height);
+        Rectangle frame = new Rectangle(bounds.width / 2 - size / 2, bounds.height / 2 - size / 2, size, size);
+
+        //definiendo coordenadas
+        int centerX = frame.x + frame.width / 2;
+        int centerY = frame.y + frame.height / 2;
+        double radius = frame.width / 2 - 10;
+
+        if (buffimg == null || buffimg.getWidth() != frame.width || buffimg.getHeight() != frame.height) {
+            updateBackgroundImage(bounds, frame);
+        }
+        g2d.drawImage(buffimg, 0, 0, null);
+
+        int sz = (int)(radius);
+        if (buffimg == null || buffimg.getWidth() != frame.width || buffimg.getHeight() != frame.height) {
+            createDayNightImage(sz);
+        }
+        g2d.drawImage(dayNightImg, centerX - sz / 2, centerY - sz / 2, null);
 
         //definiendo valor de x y y para manecillas
         int xSeg = (int) ((0.9 * radius) * Math.cos(Math.toRadians((270 + seg * (360 / 60)) % 360)));
