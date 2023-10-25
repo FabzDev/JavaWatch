@@ -30,7 +30,7 @@ import javax.swing.Timer;
  *
  * @author fabio
  */
-public class JavaWatch8 extends JPanel {
+public class JavaWatch81 extends JPanel {
 
     //definiendo variables de colores
     Color backgroundColor = new Color(0x4040c0);
@@ -66,7 +66,7 @@ public class JavaWatch8 extends JPanel {
     float[] yArr = new float[61];
 
     //constructor
-    public JavaWatch8() {
+    public JavaWatch81() {
         super();
         fillX(); //llenando arrays trigonometricos
         fillY();
@@ -79,22 +79,45 @@ public class JavaWatch8 extends JPanel {
     }
 
     //dibujar estrella
-    public void drawStar(Graphics2D g2g, int radius, int intRadius, int x, int y, int nPicos) {
+    public void drawStar(Graphics2D g2d, Rectangle frame, int radius, int intRadius, int nPicos) {
         int[] xPoints = new int[nPicos * 2];
         int[] yPoints = new int[xPoints.length];
 
-        for (int n = 0; n < xPoints.length; n = n + 2) {
-            double angle1 = (270 + ((360.0 / nPicos) * (n / 2))) % 360;
-            double angle2 = (270 + ((360.0 / nPicos) / 2 + (360.0 / nPicos) * (n / 2))) % 360;
-            xPoints[n] = (int) (radius + (radius * Math.cos(Math.toRadians(angle1))));
-            yPoints[n] = (int) (radius + (radius * Math.sin(Math.toRadians(angle1))));
-            xPoints[n + 1] = (int) ((radius) + (intRadius * Math.cos(Math.toRadians(angle2))));
-            yPoints[n + 1] = (int) ((radius) + (intRadius * Math.sin(Math.toRadians(angle2))));
+        for (int n = 0; n < (nPicos * 2); n = n + 2) {
+            double ang1 = (270 + (360.0 / nPicos) * (n / 2)) % 360;
+            double ang2 = (270 + (360.0 / nPicos) * (n / 2) + ((360.0 / nPicos) / 2 )) % 360;
+            xPoints[n] = (int) ((frame.x + frame.width / 2) + (radius * Math.cos(Math.toRadians(ang1))));
+            yPoints[n] = (int) ((frame.y + frame.height / 2) + (radius * Math.sin(Math.toRadians(ang1))));
+            xPoints[n + 1] = (int) ((frame.x + frame.width / 2) + (intRadius * Math.cos(Math.toRadians(ang2))));
+            yPoints[n + 1] = (int) ((frame.y + frame.height / 2) + (intRadius * Math.sin(Math.toRadians(ang2))));
         }
+        
+//        for (int xVar : xPoints) {
+//            System.out.print(xVar + ", ");
+//        }
+//        System.out.println();
+//        for (int yVar : yPoints) {
+//            System.out.print(yVar + ", ");
+//        }
+//        System.out.println();
 
-        g2g.drawPolygon(xPoints, yPoints, nPicos);
+//        g2d.drawOval((frame.x + frame.width / 2 - radius), (frame.y + frame.width / 2 - radius), radius * 2, radius * 2);
+//        g2d.drawOval((frame.x + frame.width / 2 - intRadius), (frame.y + frame.width / 2 - intRadius), intRadius * 2, intRadius * 2);
+        g2d.fillPolygon(xPoints, yPoints, nPicos*2);
+
     }
 
+    //dibujar sol
+    public void drawSun(Graphics2D g2d, Rectangle frame, int radius, int intRadius, int nPicos){
+        g2d.setColor(Color.ORANGE);
+        drawStar(g2d,frame,radius,intRadius,nPicos);
+        g2d.setColor(Color.YELLOW);
+        g2d.fillOval((int)(frame.x + frame.width / 2 - intRadius*1.5), (int)(frame.y + frame.height / 2 - intRadius*1.5), (int)(intRadius*1.5*2), (int)(intRadius*1.5*2));
+    }
+    
+    
+    
+    
     //llenarArrays x y y
     public void fillX() {
         for (int i = 0; i < 60; i++) {
@@ -314,19 +337,25 @@ public class JavaWatch8 extends JPanel {
         int size = Math.min(bounds.width, bounds.height);
         Rectangle frame = new Rectangle(bounds.width / 2 - size / 2, bounds.height / 2 - size / 2, size, size);
 
-        //prueba de estrella
-        g2d.setBackground(Color.BLACK);
-        g2d.fillRect(0, 0, getWidth(), getHeight());
-        g2d.setColor(Color.yellow);
-        drawStar(g2d, frame.width / 2, frame.width / 4,frame.x, frame.y, 3);
-        if (true) {
-            return;
-        }
-
         //definiendo coordenadas
         int centerX = frame.x + frame.width / 2;
         int centerY = frame.y + frame.height / 2;
         double radius = frame.width / 2 - 10;
+        
+        
+        
+
+        //prueba de estrella y sol
+        g2d.setColor(Color.BLACK);
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+        g2d.setColor(Color.RED);
+        g2d.drawRect(frame.x,frame.y,frame.width,frame.width);
+//        g2d.setColor(Color.yellow);
+//        drawStar(g2d, frame, (int) radius / 2, (int) (radius / 8), 8);
+        drawSun(g2d, frame, (int) radius/2, (int) (radius/5.5), 15);
+        if (true) {
+            return;
+        }
 
         if (buffimg == null || buffimg.getWidth() != frame.width || buffimg.getHeight() != frame.height) {
             updateBackgroundImage(bounds, frame);
@@ -385,7 +414,7 @@ public class JavaWatch8 extends JPanel {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("JavaWatch1");
             frame.setMinimumSize(new Dimension(400, 400));
-            JavaWatch8 mainPanel = new JavaWatch8();
+            JavaWatch81 mainPanel = new JavaWatch81();
             frame.setContentPane(mainPanel);
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frame.addWindowListener(new WindowAdapter() {
