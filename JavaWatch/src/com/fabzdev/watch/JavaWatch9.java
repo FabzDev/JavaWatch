@@ -82,29 +82,29 @@ public class JavaWatch9 extends JPanel {
     }
 
     //dibujar estrella
-    public void drawStar(Graphics2D g2d, Rectangle frame, int radius, int intRadius, int nPicos, int rotacion) {
+    public void drawStar(Graphics2D g2d, int x, int y, int radius, int intRadius, int nPicos, int rotacion) {
         int[] xPoints = new int[nPicos * 2];
         int[] yPoints = new int[xPoints.length];
 
         for (int n = 0; n < (nPicos * 2); n = n + 2) {
             double ang1 = (270 + rotacion + (360.0 / nPicos) * (n / 2)) % 360;
             double ang2 = (270 + rotacion + (360.0 / nPicos) * (n / 2) + ((360.0 / nPicos) / 2)) % 360;
-            xPoints[n] = (int) ((frame.x + frame.width / 2) + (radius * Math.cos(Math.toRadians(ang1))));
-            yPoints[n] = (int) ((frame.y + frame.height / 2) + (radius * Math.sin(Math.toRadians(ang1))));
-            xPoints[n + 1] = (int) ((frame.x + frame.width / 2) + (intRadius * Math.cos(Math.toRadians(ang2))));
-            yPoints[n + 1] = (int) ((frame.y + frame.height / 2) + (intRadius * Math.sin(Math.toRadians(ang2))));
+            xPoints[n] = (int) (x + radius * Math.cos(Math.toRadians(ang1)));
+            yPoints[n] = (int) (y + (radius * Math.sin(Math.toRadians(ang1))));
+            xPoints[n + 1] = (int) (x + (intRadius * Math.cos(Math.toRadians(ang2))));
+            yPoints[n + 1] = (int) (y + (intRadius * Math.sin(Math.toRadians(ang2))));
         }
-
         g2d.fillPolygon(xPoints, yPoints, nPicos * 2);
 
     }
 
     //dibujar sol
-    public void drawSun(Graphics2D g2d, Rectangle frame, int radius, int intRadius, int nPicos, int rotacion) {
+    public void drawSun(Graphics2D g2d, int x, int y, int radius, int intRadius, int nPicos, int rotacion) {
+        int sunRadius = (int)(intRadius * 0.9);
         g2d.setColor(Color.ORANGE);
-        drawStar(g2d, frame, radius, intRadius, nPicos, rotacion);
+        drawStar(g2d, x, y, radius, intRadius, nPicos, rotacion);
         g2d.setColor(Color.YELLOW);
-        g2d.fillOval((int) (frame.x + frame.width / 2 - intRadius * 1.5), (int) (frame.y + frame.height / 2 - intRadius * 1.5), (int) (intRadius * 1.5 * 2), (int) (intRadius * 1.5 * 2));
+        g2d.fillOval((int) (x - sunRadius), (int) (y - sunRadius), (int) (sunRadius * 2), (int) (sunRadius * 2));
     }
 
     //llenarArrays x y y
@@ -305,14 +305,49 @@ public class JavaWatch9 extends JPanel {
     private void createDayNightImage(int size) {
         dayNightImg = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = dayNightImg.createGraphics();
-
-        //firmamento
+        int dnRadius = (int)(size/7);
+        //firmamento con gradiente
         Paint savedPaint = g2d.getPaint();
         GradientPaint gp = new GradientPaint(size / 2, size / 2 - size / 16, backgroundColor, size / 2, size, lblColor);
         g2d.setPaint(gp);
         g2d.fillRect(0, 0, size, size);
-
         g2d.setPaint(savedPaint);
+        
+        //dibujando sol
+        drawSun(g2d, size / 2, size / 6, dnRadius, (int)(dnRadius/1.6), 12, 0);
+        
+        //dibujando estrellas en el firmamento
+        g2d.setColor(Color.YELLOW);
+        int angle=0;
+        for (int n = 0; n < 4; n++) {
+            if (n == 0) {
+                angle = 15;
+            }else {
+            angle += 50;
+            }
+            int posX = size/2 + (int)(size/2*0.8 * Math.cos(Math.toRadians(angle)));
+            int posY = size/2 + (int)(size/2*0.8 * Math.sin(Math.toRadians(angle)));
+            drawStar(g2d, posX, posY, (int)(size / 20), (int)(size /40), 5, n*3+5);
+        }
+        for (int n = 0; n < 2; n++) {
+            if (n == 0) {
+                angle = 40;
+            }else {
+            angle += 100;
+            }
+            int posX = size/2 + (int)(size/2*0.3 * Math.cos(Math.toRadians(angle)));
+            int posY = size/2 + (int)(size/2*0.3 * Math.sin(Math.toRadians(angle)));
+            drawStar(g2d, posX, posY, (int)(size / 20), (int)(size /40), 5, n*3+10);
+        }
+        
+        //dibujando luna
+        float moonRadius = dnRadius * 0.8f;
+        g2d.setColor(Color.WHITE);
+        Arc2D lunaArc = new Arc2D.Float(size/2f-moonRadius-moonRadius*0.2f, size*0.70f, moonRadius*2, moonRadius*2,0f,360.0f,Arc2D.CHORD);
+//        Shape lunaShape = lunaArc;
+        Area lunaArea = new Area(lunaArc);
+        lunaArea.subtract(new Area(new Arc2D.Float(size/2f-moonRadius-moonRadius*0.7f-moonRadius*0.2f, size*0.70f, moonRadius*2, moonRadius*2,0f,360.0f,Arc2D.CHORD)));
+        g2d.fill(lunaArea);
         g2d.dispose();
     }
 
@@ -334,29 +369,27 @@ public class JavaWatch9 extends JPanel {
 //        prueba de estrella y sol
 //        g2d.drawRect(frame.x,frame.y,frame.width,frame.width);
 //        g2d.setColor(Color.yellow);
-//        drawStar(g2d, frame, (int) radius / 2, (int) (radius / 8), 8,0);
-//        drawSun(g2d, frame, (int) radius/2, (int) (radius/5.5), 15,5);
-        
         //prueba Luna
-        int moonRadius = (int)(radius*0.5);
-        Arc2D arco = new Arc2D.Float(centerX-moonRadius, centerY-moonRadius, moonRadius*2, moonRadius*2, 0, 360, Arc2D.CHORD);
-        Shape arcoShape = arco;
-        Area areaArco = new Area(arcoShape);
-        areaArco.subtract(new Area(new Arc2D.Float(centerX-moonRadius-(int)(radius*0.1f), centerY-moonRadius, moonRadius*2, moonRadius*2, 0, 360, Arc2D.CHORD)));
-        g2d.setColor(Color.BLACK);
-        g2d.fillRect(0, 0, getWidth(), getHeight());
-        g2d.setColor(Color.WHITE);
-        g2d.fill(areaArco);
-        if (true) {
-            return;
-        }
-
+//        int moonRadius = (int)(radius*0.5);
+//        Arc2D arco = new Arc2D.Float(centerX-moonRadius, centerY-moonRadius, moonRadius*2, moonRadius*2, 0, 360, Arc2D.CHORD);
+//        Shape arcoShape = arco;
+//        Area areaArco = new Area(arcoShape);
+//        areaArco.subtract(new Area(new Arc2D.Float(centerX-moonRadius-(int)(radius*0.1f), centerY-moonRadius, moonRadius*2, moonRadius*2, 0, 360, Arc2D.CHORD)));
+//        g2d.setColor(Color.BLACK);
+//        g2d.fillRect(0, 0, getWidth(), getHeight());
+//        g2d.setColor(Color.WHITE);
+//        drawStar(g2d, centerX, centerY, (int) radius / 2, (int) (radius / 8), 8,0);
+//        drawSun(g2d, centerX, centerY, (int) (radius/3), (int) (radius/4), 10,5);
+//        g2d.fill(areaArco);
+//        if (true) {
+//            return;
+//        }
         if (buffimg == null || buffimg.getWidth() != frame.width || buffimg.getHeight() != frame.height) {
             updateBackgroundImage(bounds, frame);
         }
         g2d.drawImage(buffimg, 0, 0, null);
 
-        int sz = (int) (radius);
+        int sz = (int) (radius*1.3);
         if (buffimg == null || buffimg.getWidth() != frame.width || buffimg.getHeight() != frame.height) {
             createDayNightImage(sz);
         }
