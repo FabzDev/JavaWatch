@@ -96,9 +96,9 @@ public class JavaWatch10v2 extends JPanel {
         });
         timer.start();
     }
-    
+
     //get screen size
-    private void getScreenSize(Rectangle frame){
+    private void getScreenSize(Rectangle frame) {
         //dibujar marca Javawatch
         if (frame.width < 400) {
             sizeIndicator = 0;
@@ -108,7 +108,7 @@ public class JavaWatch10v2 extends JPanel {
             sizeIndicator = 2;
         }
     }
-    
+
     //dibujar estrella
     public void drawStar(Graphics2D g2d, int x, int y, int radius, int intRadius, int nPicos, int rotacion) {
         int[] xPoints = new int[nPicos * 2];
@@ -171,17 +171,16 @@ public class JavaWatch10v2 extends JPanel {
         min = time.get(Calendar.MINUTE);
         seg = time.get(Calendar.SECOND);
         ampm = time.get(Calendar.AM_PM);
-        
-        if(hora == 12 && min == 59 && ampm == 1){
+
+        if (hora == 12 && min == 59 && ampm == 1) {
             updatingCalendar = true;
-            time.add(Calendar.DATE,1);
+            time.add(Calendar.DATE, 1);
             diaNext = time.get(Calendar.DAY_OF_MONTH);
             mesNext = time.get(Calendar.MONTH);
-        }else{
+        } else {
             updatingCalendar = false;
         }
-        
-        ampm = 1;
+        hora = 6;
     }
 
     private void updateBackgroundImage(Rectangle bounds, Rectangle frame) {
@@ -283,7 +282,7 @@ public class JavaWatch10v2 extends JPanel {
     }
 
     private void createDayNightImage(Rectangle frame) {
-        int size = (int)(frame.width * 0.65);
+        int size = (int) (frame.width * 0.65);
         System.out.println("Create DayNight Image");
         dayNightImg = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = dayNightImg.createGraphics();
@@ -332,57 +331,61 @@ public class JavaWatch10v2 extends JPanel {
 
         g2d.dispose();
         g2d = null;
-        
-            //creando abanico del reloj
-            //--lado derecho
-            //----definiendo variables
-            float fanRadius = (size / 2);
-            float border = fanRadius * 0.2f;
-            float centerX = frame.x + frame.width/2;
-            float centerY = frame.y + frame.height/2;
-            int x1 = (int) (centerX + (fanRadius * Math.cos(Math.toRadians(10))) - (border * Math.cos(Math.toRadians(10))));
-            int y1 = (int) (centerY - (fanRadius * Math.sin(Math.toRadians(10))) + (border * Math.sin(Math.toRadians(10)))) + 2;
-            int xn = (int) (centerX + (fanRadius * Math.cos(Math.toRadians(10))));
-            int yn = (int) (centerY - (fanRadius * Math.sin(Math.toRadians(10))));
-            double angleFan = (border / fanRadius) + Math.toRadians(10);
-            int x3 = (int) (centerX + (fanRadius * Math.cos(angleFan)));
-            int y3 = (int) (centerY - (fanRadius * Math.sin(angleFan)));
-            int x4 = (int) (centerX + (fanRadius * 1.1 * Math.cos(Math.toRadians(10))));
-            int y4 = (int) (centerY - (fanRadius * 1.1 * Math.sin(Math.toRadians(10)))) + 2;
-            //----definiendo formas
-            //----definiendo arco fan
-            Arc2D fanArc = new Arc2D.Float(centerX - fanRadius, centerY - fanRadius, size, size, 10, 180, Arc2D.CHORD);
-            Arc2D del1 = new Arc2D.Float(centerX - fanRadius, centerY - fanRadius, fanRadius * 2, fanRadius * 2, 170, 180, Arc2D.CHORD);
-            Area fanArea = new Area(fanArc);
-            fanArea.subtract(new Area(del1));
-            //----generando path
-            GeneralPath gp = new GeneralPath();
-            gp.moveTo(x1, y1);
-            gp.lineTo(x4, y4);
-            gp.lineTo(x3 + 10, y3);
-            gp.lineTo(x3, y3);
-            gp.quadTo(xn, yn, x1, y1);
-            fanArea.subtract(new Area(gp));
-            fanArea.subtract(new Area(new Arc2D.Float(centerX - fanRadius*0.2f, centerY - fanRadius*0.2f, fanRadius * 2*0.2f, fanRadius * 2*0.2f, 0, 360, Arc2D.CHORD)));
 
-            
-            //--lado izquierdo
-            //----definiendo variables
-            angleFan = (border / fanRadius) + Math.toRadians(10);
-            x1 = (int) (centerX - (fanRadius * Math.cos(Math.toRadians(10))) + (border * Math.cos(Math.toRadians(10))));
-            xn = (int) (centerX - (fanRadius * Math.cos(Math.toRadians(10))));
-            x3 = (int) (centerX - (fanRadius * Math.cos(angleFan)));
-            x4 = (int) (centerX - (fanRadius * 1.1 * Math.cos(Math.toRadians(10))));
-            //----definiendo formas
-            //----generando path
-            gp = new GeneralPath();
-            gp.moveTo(x1, y1);
-            gp.lineTo(x4, y4);
-            gp.lineTo(x3 - 10, y3);
-            gp.lineTo(x3, y3);
-            gp.quadTo(xn, yn, x1, y1);
-            fanArea.subtract(new Area(gp));
-            clip = fanArea;
+        //creando abanico del reloj
+        //--lado derecho
+        //----definiendo variables
+        float fanRadius = (size / 2);
+        float border = fanRadius * 0.2f;
+        float centerX = frame.x + frame.width / 2;
+        float centerY = frame.y + frame.height / 2;
+        int x1 = (int) (centerX + (fanRadius * Math.cos(Math.toRadians(10))) - (border * Math.cos(Math.toRadians(10))));
+        int y1 = (int) (centerY - (fanRadius * Math.sin(Math.toRadians(10))) + (border * Math.sin(Math.toRadians(10)))) + 2;
+        int xn = (int) (centerX + (fanRadius * Math.cos(Math.toRadians(10))));
+        int yn = (int) (centerY - (fanRadius * Math.sin(Math.toRadians(10))));
+        double angleFan = (border / fanRadius) + Math.toRadians(10);
+        int x3 = (int) (centerX + (fanRadius * Math.cos(angleFan)));
+        int y3 = (int) (centerY - (fanRadius * Math.sin(angleFan)));
+        int x4 = (int) (centerX + (fanRadius * 1.1 * Math.cos(Math.toRadians(10))));
+        int y4 = (int) (centerY - (fanRadius * 1.1 * Math.sin(Math.toRadians(10)))) + 2;
+        //----definiendo formas
+        //----definiendo arco fan
+        Arc2D fanArc = new Arc2D.Float(centerX - fanRadius, centerY - fanRadius, size, size, 10, 180, Arc2D.CHORD);
+        Arc2D del1 = new Arc2D.Float(centerX - fanRadius, centerY - fanRadius, fanRadius * 2, fanRadius * 2, 170, 180, Arc2D.CHORD);
+        Area fanArea = new Area(fanArc);
+        fanArea.subtract(new Area(del1));
+        //----generando path
+        GeneralPath gp = new GeneralPath();
+        gp.moveTo(x1, y1);
+        gp.lineTo(x4, y4);
+        gp.lineTo(x3 + 10, y3);
+        gp.lineTo(x3, y3);
+        gp.quadTo(xn, yn, x1, y1);
+        fanArea.subtract(new Area(gp));
+        fanArea.subtract(new Area(new Arc2D.Float(centerX - fanRadius * 0.2f, centerY - fanRadius * 0.2f, fanRadius * 2 * 0.2f, fanRadius * 2 * 0.2f, 0, 360, Arc2D.CHORD)));
+
+        //--lado izquierdo
+        //----definiendo variables
+        angleFan = (border / fanRadius) + Math.toRadians(10);
+        x1 = (int) (centerX - (fanRadius * Math.cos(Math.toRadians(10))) + (border * Math.cos(Math.toRadians(10))));
+        xn = (int) (centerX - (fanRadius * Math.cos(Math.toRadians(10))));
+        x3 = (int) (centerX - (fanRadius * Math.cos(angleFan)));
+        x4 = (int) (centerX - (fanRadius * 1.1 * Math.cos(Math.toRadians(10))));
+        //----definiendo formas
+        //----generando path
+        gp = new GeneralPath();
+        gp.moveTo(x1, y1);
+        gp.lineTo(x4, y4);
+        gp.lineTo(x3 - 10, y3);
+        gp.lineTo(x3, y3);
+        gp.quadTo(xn, yn, x1, y1);
+        fanArea.subtract(new Area(gp));
+        clip = fanArea;
+    }
+    
+    private void drawCalendar(Graphics2D g2dBack){
+         g2dBack.setColor(Color.RED);
+         g2dBack.drawString("123456789101112131415161718192021222324252627282930", 0, 10);
     }
 
     @Override
@@ -413,49 +416,64 @@ public class JavaWatch10v2 extends JPanel {
             updateDayNightImg = true;
         }
         lastMinute = min;
-
         
-        if (updateDayNightImg) {
-            Graphics2D g2dBack = (Graphics2D) buffimg.getGraphics();
-            System.out.println("updateDayNighImg");
-            //definiendo forma visible del firmamento
-            Shape defaultClip = g2d.getClip();
-            g2dBack.setClip(clip);
-
-            //rotacion firmamento
-            //--definiendo variables de rotación del firmamento
-            int hours24 = hora + ampm * 12;
-            double angFirm = (180 + (360.0 / 24 * hours24) + (360.0 / 60 / 24 * min)) % 360;
-
-            //--definiendo y asignando nuevo objeto Transform
-            AffineTransform defaultTransform = g2d.getTransform();
-            AffineTransform trans = new AffineTransform();
-            trans.translate(getWidth() / 2, getHeight() / 2);
-            trans.rotate(Math.toRadians(angFirm));
-            g2dBack.setTransform(trans);
-            
-            //--redibujando dayNightImg
-            g2dBack.drawImage(dayNightImg, -(int) (dayNightImg.getWidth() / 2), -(int) (dayNightImg.getHeight() / 2), null);
-            
-            //--reasingando objeto transform default
-            g2dBack.setTransform(defaultTransform);
-
-            //definiendo gradiente
-            Paint defaultPaint = g2d.getPaint();
-            g2dBack.setPaint(new RadialGradientPaint(
-                    (float) (centerX-Math.cos(Math.toRadians(45)) * radius),
-                    (float) (centerY-Math.sin(Math.toRadians(45)) * radius),
-                    (float) radius * 3.5f,
-                    new float[]{0.0f, 0.2f},
-                    new Color[]{gradientA, gradientB}));
-//            //dibujando gradiente
-            g2dBack.fillOval((int) (centerX - dayNightImg.getWidth()/2), (int) (centerY - dayNightImg.getHeight()/2), dayNightImg.getWidth(), dayNightImg.getHeight());
-            g2dBack.setPaint(defaultPaint);
-            g2dBack.setClip(defaultClip);
-
+        if(hora == 11 && min == 59){
+            updatingCalendar = true;
+        } else {
+            updatingCalendar = false;
         }
-        g2d.drawImage(buffimg, 0, 0, null);
+        
+        updatingCalendar = true; // HARDCODEANDO UPDATING CALENDAR ******************************************************************************
+        
+        //optimizando updateDayNightImg and updatingCalendar
+        if (updateDayNightImg || updatingCalendar) {
+                Graphics2D g2dBack = (Graphics2D) buffimg.getGraphics();
+            if(updatingCalendar){
+                drawCalendar(g2dBack);
+            }
+            if (updateDayNightImg) {
+                System.out.println("updateDayNighImg");
+                //definiendo forma visible del firmamento
+                Shape defaultClip = g2d.getClip();
+                g2dBack.setClip(clip);
 
+                //rotacion firmamento
+                //--definiendo variables de rotación del firmamento
+                int hours24 = hora + ampm * 12;
+                double angFirm = (180 + (360.0 / 24 * hours24) + (360.0 / 60 / 24 * min)) % 360;
+
+                //--definiendo y asignando nuevo objeto Transform
+                AffineTransform defaultTransform = g2d.getTransform();
+                AffineTransform trans = new AffineTransform();
+                trans.translate(getWidth() / 2, getHeight() / 2);
+                trans.rotate(Math.toRadians(angFirm));
+                g2dBack.setTransform(trans);
+
+                //--redibujando dayNightImg
+                g2dBack.drawImage(dayNightImg, -(int) (dayNightImg.getWidth() / 2), -(int) (dayNightImg.getHeight() / 2), null);
+
+                //--reasingando objeto transform default
+                g2dBack.setTransform(defaultTransform);
+
+                //definiendo gradiente
+                Paint defaultPaint = g2d.getPaint();
+                g2dBack.setPaint(new RadialGradientPaint(
+                        (float) (centerX - Math.cos(Math.toRadians(45)) * radius),
+                        (float) (centerY - Math.sin(Math.toRadians(45)) * radius),
+                        (float) radius * 3.5f,
+                        new float[]{0.0f, 0.2f},
+                        new Color[]{gradientA, gradientB}));
+//            //dibujando gradiente
+                g2dBack.fillOval((int) (centerX - dayNightImg.getWidth() / 2), (int) (centerY - dayNightImg.getHeight() / 2), dayNightImg.getWidth(), dayNightImg.getHeight());
+                g2dBack.setPaint(defaultPaint);
+                g2dBack.setClip(defaultClip);
+
+            }
+            
+            
+        }
+
+        g2d.drawImage(buffimg, 0, 0, null);
 
         //definiendo valor de x y y para manecillas
         int xSeg = (int) ((0.9 * radius) * cos(seg));
