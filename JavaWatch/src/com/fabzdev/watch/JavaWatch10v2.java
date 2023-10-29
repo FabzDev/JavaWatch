@@ -59,12 +59,17 @@ public class JavaWatch10v2 extends JPanel {
     int stMin = 5;
     int stSeg = 3;
     //definiendo variables de tiempo
+    int mes;
+    int dia;
     int hora;
     int min;
     int seg;
     int ampm;
     int lastMinute;
     Timer timer;
+    boolean updatingCalendar;
+    int diaNext;
+    int mesNext;
     //definiendo BufferedImages
     BufferedImage buffimg;
     BufferedImage dayNightImg;
@@ -143,10 +148,21 @@ public class JavaWatch10v2 extends JPanel {
     //definir hora
     private void updatetime() {
         Calendar time = Calendar.getInstance();
+        mes = time.get(Calendar.MONTH);
+        dia = time.get(Calendar.DAY_OF_MONTH);
         hora = time.get(Calendar.HOUR);
         min = time.get(Calendar.MINUTE);
         seg = time.get(Calendar.SECOND);
         ampm = time.get(Calendar.AM_PM);
+        
+        if(hora == 12 && min == 59 && ampm == 1){
+            updatingCalendar = true;
+            time.add(Calendar.DATE,1);
+            diaNext = time.get(Calendar.DAY_OF_MONTH);
+            mesNext = time.get(Calendar.MONTH);
+        }else{
+            updatingCalendar = false;
+        }
     }
 
     //obtener Fonts
