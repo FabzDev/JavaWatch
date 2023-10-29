@@ -78,6 +78,11 @@ public class JavaWatch10v2 extends JPanel {
     float[] yArr = new float[61];
     //definiendo variable clip
     Shape clip;
+    //definiendo indicador de tamaño de pantalla
+    int sizeIndicator;
+    float[] clockFont = {24f, 36f, 48f};
+    float[] titleFont = {12f, 18f, 24f};
+    float[] calendarFont = {24f, 36f, 48f};
 
     //constructor
     public JavaWatch10v2() {
@@ -91,7 +96,19 @@ public class JavaWatch10v2 extends JPanel {
         });
         timer.start();
     }
-
+    
+    //get screen size
+    private void getScreenSize(Rectangle frame){
+        //dibujar marca Javawatch
+        if (frame.width < 400) {
+            sizeIndicator = 0;
+        } else if (frame.width < 800) {
+            sizeIndicator = 1;
+        } else {
+            sizeIndicator = 2;
+        }
+    }
+    
     //dibujar estrella
     public void drawStar(Graphics2D g2d, int x, int y, int radius, int intRadius, int nPicos, int rotacion) {
         int[] xPoints = new int[nPicos * 2];
@@ -163,59 +180,12 @@ public class JavaWatch10v2 extends JPanel {
         }else{
             updatingCalendar = false;
         }
-    }
-
-    //obtener Fonts
-    private Font getSmallFont(Graphics2D g2d) {
-        if (smallFont != null) {
-            return smallFont;
-        }
-        smallFont = g2d.getFont().deriveFont(24f);
-        return smallFont;
-    }
-
-    private Font getMediumFont(Graphics2D g2d) {
-        if (mediumFont != null) {
-            return mediumFont;
-        }
-        mediumFont = g2d.getFont().deriveFont(36f);
-        return mediumFont;
-    }
-
-    private Font getLargeFont(Graphics2D g2d) {
-        if (largeFont != null) {
-            return largeFont;
-        }
-        largeFont = g2d.getFont().deriveFont(48f);
-        return largeFont;
-    }
-
-    //definiendo fuentes marca JavaWatch
-    private Font getSmallFontTitle(Graphics2D g2d) {
-        if (smallTitleFont != null) {
-            return smallTitleFont;
-        }
-        smallTitleFont = g2d.getFont().deriveFont(12f);
-        return smallTitleFont;
-    }
-
-    private Font getMediumFontTitle(Graphics2D g2d) {
-        if (mediumTitleFont != null) {
-            return mediumTitleFont;
-        }
-        mediumTitleFont = g2d.getFont().deriveFont(18f);
-        return mediumTitleFont;
-    }
-
-    private Font getLargeFontTitle(Graphics2D g2d) {
-        if (largeTitleFont != null) {
-            return largeTitleFont;
-        }
-        largeTitleFont = g2d.getFont().deriveFont(24f);
-        return largeTitleFont;
+        
+        ampm = 1;
     }
 
     private void updateBackgroundImage(Rectangle bounds, Rectangle frame) {
+        getScreenSize(frame);
         System.out.println("Update Background Image");
         buffimg = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = buffimg.createGraphics();
@@ -230,16 +200,8 @@ public class JavaWatch10v2 extends JPanel {
         Stroke st = g2d.getStroke();
         Stroke boldSt = new BasicStroke(2);
 
-        //obteniendo tamaño de fuente
-        Font f;
-        if (frame.width < 400) {
-            f = getSmallFont(g2d);
-        } else if (frame.width < 800) {
-            f = getMediumFont(g2d);
-        } else {
-            f = getLargeFont(g2d);
-        }
-        g2d.setFont(f);
+        //obteniendo tamaño de fuente reloj
+        g2d.setFont(g2d.getFont().deriveFont(clockFont[sizeIndicator]));
 
         //obteniendo FontMetrics
         FontMetrics fm = g2d.getFontMetrics();
@@ -312,13 +274,7 @@ public class JavaWatch10v2 extends JPanel {
         }
 
         //dibujar marca Javawatch
-        if (frame.width < 400) {
-            g2d.setFont(getSmallFontTitle(g2d));
-        } else if (frame.width < 800) {
-            g2d.setFont(getMediumFontTitle(g2d));
-        } else {
-            g2d.setFont(getLargeFontTitle(g2d));
-        }
+        g2d.setFont(g2d.getFont().deriveFont(titleFont[sizeIndicator]));
         Rectangle2D borderTitle = g2d.getFontMetrics().getStringBounds("JavaWatch", g2d);
         g2d.drawString("JavaWatch", (float) (centerX - borderTitle.getWidth() / 2), (float) (centerY + radius * 0.3));
 
@@ -482,18 +438,18 @@ public class JavaWatch10v2 extends JPanel {
             g2dBack.drawImage(dayNightImg, -(int) (dayNightImg.getWidth() / 2), -(int) (dayNightImg.getHeight() / 2), null);
             
             //--reasingando objeto transform default
-            g2d.setTransform(defaultTransform);
+            g2dBack.setTransform(defaultTransform);
 
             //definiendo gradiente
             Paint defaultPaint = g2d.getPaint();
             g2dBack.setPaint(new RadialGradientPaint(
-                    (float) (centerX - Math.cos(Math.toRadians(45)) * radius),
-                    (float) (centerY - Math.sin(Math.toRadians(45)) * radius),
+                    (float) (centerX-Math.cos(Math.toRadians(45)) * radius),
+                    (float) (centerY-Math.sin(Math.toRadians(45)) * radius),
                     (float) radius * 3.5f,
                     new float[]{0.0f, 0.2f},
                     new Color[]{gradientA, gradientB}));
-            //dibujando gradiente
-            g2dBack.fillOval(frame.x + 4, frame.y + 4, frame.width - 8, frame.height - 8);
+//            //dibujando gradiente
+            g2dBack.fillOval((int) (centerX - dayNightImg.getWidth()/2), (int) (centerY - dayNightImg.getHeight()/2), dayNightImg.getWidth(), dayNightImg.getHeight());
             g2dBack.setPaint(defaultPaint);
             g2dBack.setClip(defaultClip);
 
