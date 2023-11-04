@@ -24,6 +24,7 @@ import java.awt.geom.Arc2D;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Calendar;
 import javax.swing.JFrame;
@@ -47,13 +48,9 @@ public class JavaWatch10v2 extends JPanel {
     Color gradientA = new Color(224, 224, 224, 120);
     Color gradientB = new Color(32, 32, 32, 50);
     Color shadowColor = new Color(0x0, 0x0, 0x0, 0x30);
-    //definiendo variables de fuentes
-    Font smallFont;
-    Font mediumFont;
-    Font largeFont;
-    Font smallTitleFont;
-    Font mediumTitleFont;
-    Font largeTitleFont;
+    Color backgroundCalColor = new Color(0x101020);
+    Color labelCalColor = new Color(0xbdbd00);
+
     //definiendo strokes manecillas
     int stHora = 12;
     int stMin = 5;
@@ -82,13 +79,20 @@ public class JavaWatch10v2 extends JPanel {
     int sizeIndicator;
     float[] clockFont = {24f, 36f, 48f};
     float[] titleFont = {12f, 18f, 24f};
-    float[] calendarFont = {24f, 36f, 48f};
+    Font[] calendarFont = new Font[3];
+
+    //definiendo variables calendario
+    private Dimension calDaySize;
+    private Dimension calMonthSize;
+    private String[] months = {"ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"};
+    private Rectangle calendarFrame;
 
     //constructor
     public JavaWatch10v2() {
         super();
         fillX(); //llenando arrays trigonometricos
         fillY();
+        initFonts(); //llenando arrays fuentes
         updatetime();
         timer = new Timer(1000, e -> {
             updatetime();
@@ -180,9 +184,9 @@ public class JavaWatch10v2 extends JPanel {
         } else {
             updatingCalendar = false;
         }
-        hora = 6;
     }
 
+    //actualizar imagen base (fondo, numeros, firmamento, etc)
     private void updateBackgroundImage(Rectangle bounds, Rectangle frame) {
         getScreenSize(frame);
         System.out.println("Update Background Image");
@@ -275,12 +279,13 @@ public class JavaWatch10v2 extends JPanel {
         //dibujar marca Javawatch
         g2d.setFont(g2d.getFont().deriveFont(titleFont[sizeIndicator]));
         Rectangle2D borderTitle = g2d.getFontMetrics().getStringBounds("JavaWatch", g2d);
-        g2d.drawString("JavaWatch", (float) (centerX - borderTitle.getWidth() / 2), (float) (centerY + radius * 0.3));
+        g2d.drawString("JavaWatch", (float) (centerX - borderTitle.getWidth() / 2), (float) (centerY + radius * 0.2));
 
         //cerrar el entorno de dibujo e la imagen
         g2d.dispose();
     }
 
+    //crear imagen base del firmamento
     private void createDayNightImage(Rectangle frame) {
         int size = (int) (frame.width * 0.65);
         System.out.println("Create DayNight Image");
@@ -382,10 +387,80 @@ public class JavaWatch10v2 extends JPanel {
         fanArea.subtract(new Area(gp));
         clip = fanArea;
     }
-    
-    private void drawCalendar(Graphics2D g2dBack){
-         g2dBack.setColor(Color.RED);
-         g2dBack.drawString("123456789101112131415161718192021222324252627282930", 0, 10);
+
+    //llenar arreglo de fuentes para cada tamaño de pantalla
+    private void initFonts() {
+        BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = bi.createGraphics();
+
+        calendarFont[0] = g2d.getFont().deriveFont(Font.BOLD, 28f);
+        calendarFont[1] = g2d.getFont().deriveFont(Font.BOLD, 42f);
+        calendarFont[2] = g2d.getFont().deriveFont(Font.BOLD, 84f);
+        g2d.dispose();
+    }
+
+    //actualizar los tamaños de fuente del calendario
+    private void updateCalendarMetrics(Graphics2D g2d) {
+        calDaySize = new Dimension();
+        calMonthSize = new Dimension();
+
+        Font saveFont = g2d.getFont();
+        g2d.setFont(calendarFont[sizeIndicator]);
+        FontMetrics fm = g2d.getFontMetrics();
+        calDaySize.height = fm.getHeight();
+        calMonthSize.height = fm.getHeight();
+        for (int i = 1; i <= 31; i++) {
+            String s = i < 10 ? "0" + i : String.valueOf(i);
+            if (fm.stringWidth(s) > calDaySize.width) {
+                calDaySize.width = fm.stringWidth(s);
+            }
+        }
+        for (int i = 0; i < months.length; i++) {
+            String s = months[i];
+            if (fm.stringWidth(s) > calMonthSize.width) {
+                calMonthSize.width = fm.stringWidth(s);
+            }
+        }
+        g2d.setFont(saveFont);
+    }
+
+    //dibujar el calendario
+    private void drawCalendar(Graphics2D g2dBack, Rectangle frame) {
+        //definir tamaños de fuente
+        updateCalendarMetrics(g2dBack);
+
+        //crear rectangulo fondo del calendario
+        Rectangle calendarFrame = new Rectangle(0, 0, calDaySize.width + calMonthSize.width + 8 * 3, calDaySize.height);
+        calendarFrame.x = (frame.x + frame.width / 2 - calendarFrame.width / 2);
+        calendarFrame.y = (frame.height / 2 + (int) (frame.height / 2 * 0.3f));
+
+        RoundRectangle2D rr = new RoundRectangle2D.Float(calendarFrame.x, calendarFrame.y, calendarFrame.width, calendarFrame.height, (int) (calendarFrame.height / 2), (int) (calendarFrame.height / 2));
+        g2dBack.setColor(backgroundCalColor);
+        g2dBack.fill(rr);
+
+        //redefiniendo figura roundRect y obteniendo font metrics
+        rr.setRoundRect(calendarFrame.x + 2, calendarFrame.y + 2, calendarFrame.width - 4, calendarFrame.height - 4, ((calendarFrame.height - 4) / 2), ((calendarFrame.height - 4) / 2));
+
+        //crear clip para fecha calendario
+        Shape savedClip = g2dBack.getClip();
+        g2dBack.setClip(new Area(rr));
+
+        //dibujando strings dia y mes
+        g2dBack.setColor(labelCalColor);
+        g2dBack.setFont(calendarFont[sizeIndicator]);
+        FontMetrics fm = g2dBack.getFontMetrics();
+        
+        //dia
+        int x = calendarFrame.x + 8;
+        int y = calendarFrame.y + fm.getAscent();
+        g2dBack.drawString(dia < 10 ? "0" + dia: String.valueOf(dia), x, y);
+
+        //mes
+        x = calendarFrame.x + 8 + calDaySize.width +8;
+        g2dBack.drawString(months[mes], x, y);
+        
+        g2dBack.setClip(savedClip);
+
     }
 
     @Override
@@ -407,32 +482,32 @@ public class JavaWatch10v2 extends JPanel {
         float sz = (float) (radius * 1.45f); // AQUI CAMBIAR TAMAÑO FIRMAMENTO
 
         //optimizando el codigo para dibujar la imagen solo al inicio de la ejecucion y cuando se modifique el tamaño de ventana
-        boolean updateDayNightImg = false;
+        boolean rotateDayNightImg = false;
         if (buffimg == null || buffimg.getWidth() != bounds.width || buffimg.getHeight() != bounds.height) {
             updateBackgroundImage(bounds, frame);
             createDayNightImage(frame);
-            updateDayNightImg = true;
+            rotateDayNightImg = true;
         } else if (lastMinute != min) {
-            updateDayNightImg = true;
+            rotateDayNightImg = true;
         }
         lastMinute = min;
-        
-        if(hora == 11 && min == 59){
+
+        if (hora == 11 && min == 59) {
             updatingCalendar = true;
         } else {
             updatingCalendar = false;
         }
-        
+
         updatingCalendar = true; // HARDCODEANDO UPDATING CALENDAR ******************************************************************************
-        
+
         //optimizando updateDayNightImg and updatingCalendar
-        if (updateDayNightImg || updatingCalendar) {
-                Graphics2D g2dBack = (Graphics2D) buffimg.getGraphics();
-            if(updatingCalendar){
-                drawCalendar(g2dBack);
+        if (rotateDayNightImg || updatingCalendar) {
+            Graphics2D g2dBack = (Graphics2D) buffimg.getGraphics();
+            if (updatingCalendar) {
+                drawCalendar(g2dBack, frame);
             }
-            if (updateDayNightImg) {
-                System.out.println("updateDayNighImg");
+            if (rotateDayNightImg) {
+                System.out.println("rotatingDayNighImg");
                 //definiendo forma visible del firmamento
                 Shape defaultClip = g2d.getClip();
                 g2dBack.setClip(clip);
@@ -467,10 +542,8 @@ public class JavaWatch10v2 extends JPanel {
                 g2dBack.fillOval((int) (centerX - dayNightImg.getWidth() / 2), (int) (centerY - dayNightImg.getHeight() / 2), dayNightImg.getWidth(), dayNightImg.getHeight());
                 g2dBack.setPaint(defaultPaint);
                 g2dBack.setClip(defaultClip);
-
+                g2dBack.dispose();
             }
-            
-            
         }
 
         g2d.drawImage(buffimg, 0, 0, null);
