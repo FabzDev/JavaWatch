@@ -176,16 +176,15 @@ public class JavaWatch10v2 extends JPanel {
         seg = time.get(Calendar.SECOND);
         ampm = time.get(Calendar.AM_PM);
 
-        hora = 11;
-        min = 59;
-        ampm = 1;
+//        hora = 11;
+//        min = 59;
+//        ampm = 1;
         
         if (hora == 11 && min == 59 && ampm == 1) {
             updatingCalendar = true;
             time.add(Calendar.DATE, 1);
             diaNext = time.get(Calendar.DAY_OF_MONTH);
             mesNext = time.get(Calendar.MONTH);
-            System.out.println(diaNext + " " + mesNext);
         } else {
             updatingCalendar = false;
         }
@@ -464,9 +463,12 @@ public class JavaWatch10v2 extends JPanel {
         //dia
         int x = calendarFrame.x + 8;
         int y = calendarFrame.y + fm.getAscent();
+        int y2;
 
         if (hora == 11 && min == 59 && ampm == 1) {
+            y2 = (int)(y + rr.getHeight() - rr.getHeight() / 60 * seg);
             y = y - (int) (rr.getHeight() / 60 * seg);
+            g2dBack.drawString(diaNext < 10 ? "0" + diaNext : String.valueOf(diaNext), x, y2);
         }
         g2dBack.drawString(dia < 10 ? "0" + dia : String.valueOf(dia), x, y);
 
@@ -475,7 +477,9 @@ public class JavaWatch10v2 extends JPanel {
 
         y = calendarFrame.y + fm.getAscent();
         if (hora == 11 && min == 59 && ampm == 1 && mes != mesNext) {
+            y2 = (int)(y + rr.getHeight() - rr.getHeight() / 60 * seg);
             y = y - (int) (rr.getHeight() / 60 * seg);
+            g2dBack.drawString(months[mesNext], x, y2);;
         }
         g2dBack.drawString(months[mes], x, y);
 
