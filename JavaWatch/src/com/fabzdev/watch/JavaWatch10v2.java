@@ -300,12 +300,12 @@ public class JavaWatch10v2 extends JPanel {
         dayNightImg = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = dayNightImg.createGraphics();
         int dnRadius = (int) (size / 7);
-//        //firmamento con gradiente
-//        Paint savedPaint = g2d.getPaint();
-//        GradientPaint gpaint = new GradientPaint(size / 2, size / 2 - size / 16, backgroundColor, size / 2, size, lblColor);
-//        g2d.setPaint(gpaint);
-//        g2d.fillRect(0, 0, size, size);
-//        g2d.setPaint(savedPaint);
+        //firmamento con gradiente
+        Paint savedPaint = g2d.getPaint();
+        GradientPaint gpaint = new GradientPaint(size / 2, size / 2 - size / 16, backgroundColor, size / 2, size, lblColor);
+        g2d.setPaint(gpaint);
+        g2d.fillRect(0, 0, size, size);
+        g2d.setPaint(savedPaint);
 
         //dibujando sol
         drawSun(g2d, size / 2, size / 6, dnRadius, (int) (dnRadius / 1.6), 12, 0);
@@ -393,7 +393,7 @@ public class JavaWatch10v2 extends JPanel {
         gp.lineTo(x3, y3);
         gp.quadTo(xn, yn, x1, y1);
         fanArea.subtract(new Area(gp));
-//        clip = fanArea;
+        clip = fanArea;
     }
 
     //llenar arreglo de fuentes para cada tamaño de pantalla
