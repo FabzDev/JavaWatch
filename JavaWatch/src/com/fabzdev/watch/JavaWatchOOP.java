@@ -43,7 +43,7 @@ import javax.swing.SwingUtilities;
  */
 public class JavaWatchOOP extends JPanel {
 
-        //variables no OPP
+    //variables no OPP
     //definiendo variables de colores
     Color backgroundColor = new Color(0x4040c0);
     Color horaColor = Color.BLACK;
@@ -70,14 +70,13 @@ public class JavaWatchOOP extends JPanel {
     int min;
     int seg;
     int ampm;
-//    int diaNext;
-    int mesNext;
+
     //definiendo arreglos de X y Y
     float[] xArr = new float[61];
     float[] yArr = new float[61];
     //definiendo indicador de tamaño de pantalla
     int sizeIndicator;
-    float[] clockFont = {24f, 36f, 48f};
+    float[] clockFont = {24f, 36f, 72f};
     float[] titleFont = {12f, 18f, 24f};
     Font[] calendarFont = new Font[3];
 
@@ -88,15 +87,14 @@ public class JavaWatchOOP extends JPanel {
     WatchTimer watchTimer;
     ClockCover clockCover;
     ClockHands clockHands;
-    
-    
+
     //constructor
     public JavaWatchOOP() {
         super();
         fillX(); //llenando arrays trigonometricos
         fillY();
         initFonts(); //llenando arrays fuentes
-        
+
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -121,12 +119,13 @@ public class JavaWatchOOP extends JPanel {
     }
 
     private class WatchTimer {
+
         private int lastSecond = -1; // Para garantizar que la primera vez siempre sea diferente a second
         private int lastMinute = -1; // Para garantizar que la primera vez siempre sea diferente a minute
         private Set<ClockComponent> secondListeners = new HashSet<>();
         private Set<ClockComponent> minuteListeners = new HashSet<>();
         private javax.swing.Timer timer;
-        
+
         private WatchTimer() {
             updateTime();
             timer = new javax.swing.Timer(1000, e -> {
@@ -135,15 +134,11 @@ public class JavaWatchOOP extends JPanel {
             });
             timer.start();
         }
-        
-        private void stop() {
-            timer.stop();
-        }
-        
+
         private void setMinuteListener(ClockComponent c) {
             minuteListeners.add(c);
         }
-    
+
         private void removeMinuteListener(ClockComponent c) {
             minuteListeners.remove(c);
         }
@@ -155,30 +150,35 @@ public class JavaWatchOOP extends JPanel {
         private void removeSecondListener(ClockComponent c) {
             secondListeners.remove(c);
         }
-        
+
         private void updateTime() {
             Calendar cal = Calendar.getInstance();
-                mes = cal.get(Calendar.MONTH);
-                dia = cal.get(Calendar.DATE);
-                hora = cal.get(Calendar.HOUR);
-                min = cal.get(Calendar.MINUTE);
-                seg = cal.get(Calendar.SECOND);
-                ampm = cal.get(Calendar.AM_PM);
+            mes = cal.get(Calendar.MONTH);
+            dia = cal.get(Calendar.DATE);
+            hora = cal.get(Calendar.HOUR);
+            min = cal.get(Calendar.MINUTE);
+            seg = cal.get(Calendar.SECOND);
+            ampm = cal.get(Calendar.AM_PM);
 
             if (seg != lastSecond) {
-                for (ClockComponent c : secondListeners)
+                for (ClockComponent c : secondListeners) {
                     c.update();
+                }
                 lastSecond = seg;
             }
             if (min != lastMinute) {
-                for (ClockComponent c : minuteListeners)
+                for (ClockComponent c : minuteListeners) {
                     c.update();
+                }
                 lastMinute = min;
             }
         }
+
+        private void stop() {
+            timer.stop();
+        }
     }
-    
-    
+
     private class ClockCover {
 
         private final String title = "Java Watch";
@@ -195,12 +195,12 @@ public class JavaWatchOOP extends JPanel {
             children.add(calendarCover);
         }
 
-        private void setBounds(Rectangle frame) {
-            System.out.println("clockCover.setBounds");
-            this.frame = frame;
+        private void setBounds(Rectangle window) {
+//            System.out.println("clockCover.setBounds");
+            this.frame = window;
 
             int size = Math.min(frame.width, frame.height);
-            bounds = new Rectangle(frame.width/2 - size/2, frame.height/2 - size/2, size, size);
+            bounds = new Rectangle(frame.width / 2 - size / 2, frame.height / 2 - size / 2, size, size);
             for (ClockComponent child : children) {
                 child.setBounds(bounds);
             }
@@ -208,10 +208,11 @@ public class JavaWatchOOP extends JPanel {
         }
 
         private void redrawBackgroundImage() {
-            System.out.println("ClockCover.redrawBackgroundImage");
+//            System.out.println("ClockCover.redrawBackgroundImage");
 
-            if ((backgroundImage == null) || (backgroundImage.getWidth() != frame.width) || (backgroundImage.getHeight() != frame.height))
+            if ((backgroundImage == null) || (backgroundImage.getWidth() != frame.width) || (backgroundImage.getHeight() != frame.height)) {
                 backgroundImage = new BufferedImage(frame.width, frame.height, BufferedImage.TYPE_INT_RGB);
+            }
 
             Graphics2D g2d = (Graphics2D) backgroundImage.getGraphics();
 
@@ -222,7 +223,7 @@ public class JavaWatchOOP extends JPanel {
             //definiendo coordenadas
             int centerX = bounds.x + bounds.width / 2;
             int centerY = bounds.y + bounds.height / 2;
-            float radius = bounds.width / 2f - 10f;
+            float radius = bounds.width / 2f - 10;
             double angle;
 
             //dibujando face-background del reloj
@@ -279,11 +280,11 @@ public class JavaWatchOOP extends JPanel {
 
                     //definiendo posición de las horas
                     Rectangle2D sb = fm.getStringBounds(String.valueOf(h), g2d);
-                    int x = (int) (-sb.getWidth() / 2 + (radius * cos * 0.8));
-                    int y = (int) ((fm.getAscent() - fm.getDescent()) / 2 + (radius * sin * 0.8));
+                    int x = (int) (-sb.getWidth()*1.2f + radius * cos * 0.8);
+                    int y = (int) (sb.getHeight() - fm.getDescent() + radius * sin * 0.8);
 
                     //dibujando texto horas
-                    g2d.drawString(String.valueOf(h), centerX + x, centerY + y);
+                    g2d.drawString(String.valueOf(h), (float)(centerX + x), (float)(centerY + y));
 
                 } else {
                     //definiendo largo de la linea para minutos
@@ -310,17 +311,19 @@ public class JavaWatchOOP extends JPanel {
             Graphics2D innerGraphics = null;
             for (ClockComponent child : children) {
                 if (child.isDirty()) {
-                    if (innerGraphics == null)
+                    if (innerGraphics == null) {
                         innerGraphics = backgroundImage.createGraphics();
+                    }
                     child.paint(innerGraphics);
-                    System.out.println("dibujando hijo: " + child.toString());
+//                    System.out.println("dibujando hijo: " + child.toString());
                 }
             }
-            if (innerGraphics != null)
+            if (innerGraphics != null) {
                 innerGraphics.dispose();
-            
+            }
+
             g2d.drawImage(backgroundImage, 0, 0, null);
-            
+
         }
     }
 
@@ -331,7 +334,6 @@ public class JavaWatchOOP extends JPanel {
         private Area dnClip;
         private boolean dirty;
         private float dnRadius;
-        
 
         private DayNightCover() {
             watchTimer.setMinuteListener(this);
@@ -349,16 +351,16 @@ public class JavaWatchOOP extends JPanel {
 
         @Override
         protected void setBounds(Rectangle bounds) {
-            System.out.println("DayNightCover.setBounds");
+//            System.out.println("DayNightCover.setBounds");
             this.bounds = bounds;
             createDayNightImage();
             dirty = true;
-            
+
         }
 
         //crear imagen base del firmamento
         private void createDayNightImage() {
-            System.out.println("DayNightCover.createDayNightImage");
+//            System.out.println("DayNightCover.createDayNightImage");
 
             int size = (int) (bounds.width * 0.65);
             dnRadius = size / 2;
@@ -373,7 +375,7 @@ public class JavaWatchOOP extends JPanel {
             g2d.fillRect(0, size / 2, size, size);
 
             Paint savedPaint = g2d.getPaint();
-            GradientPaint gpaint = new GradientPaint(0, size / 2 - size / 16, dayColor, 0, size / 2 + size + 16, nightColor);
+            GradientPaint gpaint = new GradientPaint(0, size / 2 - size / 16, dayColor, 0, size / 2 + size / 16, nightColor);
             g2d.setPaint(gpaint);
             g2d.fillRect(0, 0, size, size);
             g2d.setPaint(savedPaint);
@@ -496,17 +498,17 @@ public class JavaWatchOOP extends JPanel {
 
         @Override
         protected void paint(Graphics2D g2d) {
-            System.out.println("dayNightCover.paint");
+//            System.out.println("dayNightCover.paint");
             //definiendo forma visible del firmamento
             Graphics2D g2dBack = g2d;
-            
+
             Shape defaultClip = g2d.getClip();
             g2dBack.setClip(dnClip);
 
             float centerX = bounds.x + bounds.width / 2;
             float centerY = bounds.y + bounds.height / 2;
             int radius = dayNightImage.getWidth() / 2;
-            double angFirm = (180 + (360.0 / 24 * hora + ampm * 12) + (360.0 / 60 / 24 * min)) % 360;
+            double angFirm = (180 + ((360.0 / 24) * (hora + ampm * 12)) + (360.0 / 60 / 24 * min) % 360);
 
             AffineTransform defaultTransform = g2dBack.getTransform();
             AffineTransform trans = new AffineTransform();
@@ -515,7 +517,7 @@ public class JavaWatchOOP extends JPanel {
             g2dBack.setTransform(trans);
             g2dBack.drawImage(dayNightImage, -(int) (radius), -(int) (radius), null);
             g2dBack.setTransform(defaultTransform);
-            
+
             // sombreado dia y noche
             Paint defaultPaint = g2d.getPaint();
             RadialGradientPaint rp = new RadialGradientPaint(
@@ -525,7 +527,7 @@ public class JavaWatchOOP extends JPanel {
                     new float[]{0.0f, 0.2f},
                     new Color[]{gradientA, gradientB});
             g2dBack.setPaint(rp);
-            g2dBack.fillOval(bounds.x + 4, bounds.y + 4, bounds.width-8, bounds.height-8);
+            g2dBack.fillOval(bounds.x + 4, bounds.y + 4, bounds.width - 8, bounds.height - 8);
             g2dBack.setPaint(defaultPaint);
             g2dBack.setClip(defaultClip);
 
@@ -552,7 +554,7 @@ public class JavaWatchOOP extends JPanel {
 
         @Override
         protected void setBounds(Rectangle bounds) {
-            System.out.println("CalendarCover.setBounds");
+//            System.out.println("CalendarCover.setBounds");
             this.bounds = bounds;
             lastDay = dia;
             dirty = true;
@@ -587,7 +589,7 @@ public class JavaWatchOOP extends JPanel {
                 dirty = true;
                 lastDay = dia;
             }
-            
+
             if ((ampm == 1) && (hora == 11) && (min == 59)) {
                 startSecondListening();
                 dirty = true;
@@ -596,7 +598,6 @@ public class JavaWatchOOP extends JPanel {
             }
         }
 
-        //actualizar los tamaños de fuente del calendario
         private void updateCalendarMetrics(Graphics2D g2d) {
             calDaySize = new Dimension();
             calMonthSize = new Dimension();
@@ -623,8 +624,12 @@ public class JavaWatchOOP extends JPanel {
 
         @Override
         protected void paint(Graphics2D g2d) {
-            System.out.println("CalendarCover.paint");
+//            System.out.println("calendarCover.paint");
             Rectangle calendarFrame;
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DATE, 1);
+            day_next = cal.get(Calendar.DATE);
+            month_next = cal.get(Calendar.MONTH);
 
             //definir tamaños de fuente
             updateCalendarMetrics(g2d);
@@ -632,7 +637,7 @@ public class JavaWatchOOP extends JPanel {
             //crear rectangulo fondo del calendario
             calendarFrame = new Rectangle(0, 0, calDaySize.width + calMonthSize.width + 8 * 3, calDaySize.height);
             calendarFrame.x = (bounds.x + bounds.width / 2 - calendarFrame.width / 2);
-            calendarFrame.y = (bounds.height / 2 + (int) (bounds.height / 2 * 0.3f));
+            calendarFrame.y = (bounds.y + bounds.height / 2 + (int) (bounds.height / 2 * 0.3f));
 
             RoundRectangle2D rr = new RoundRectangle2D.Float(calendarFrame.x, calendarFrame.y, calendarFrame.width, calendarFrame.height, (int) (calendarFrame.height / 2), (int) (calendarFrame.height / 2));
             g2d.setColor(backgroundCalColor);
@@ -653,33 +658,34 @@ public class JavaWatchOOP extends JPanel {
             //dia
             int x = calendarFrame.x + 8;
             int y = calendarFrame.y + fm.getAscent();
-            int y2;
+            int y2 = calendarFrame.y + fm.getAscent() - (int) (rr.getHeight() / 60 * seg);
+            int y3 = calendarFrame.y + fm.getAscent() + (int) (rr.getHeight() - (rr.getHeight() / 60 * seg));
 
             if (hora == 11 && min == 59 && ampm == 1) {
-                y2 = (int) (y + rr.getHeight() - rr.getHeight() / 60 * seg);
-                y = y - (int) (rr.getHeight() / 60 * seg);
+                g2d.drawString(dia < 10 ? "0" + dia : String.valueOf(dia), x, y2);
+                g2d.drawString(day_next < 10 ? "0" + day_next : String.valueOf(day_next), x, y3);
+
+            } else {
+                g2d.drawString(dia < 10 ? "0" + dia : String.valueOf(dia), x, y);
             }
-            g2d.drawString(dia < 10 ? "0" + dia : String.valueOf(dia), x, y);
 
             //mes
             x = calendarFrame.x + 8 + calDaySize.width + 8;
-
-            y = calendarFrame.y + fm.getAscent();
-            if (hora == 11 && min == 59 && ampm == 1 && mes != mesNext) {
-                y2 = (int) (y + rr.getHeight() - rr.getHeight() / 60 * seg);
-                y = y - (int) (rr.getHeight() / 60 * seg);
-                g2d.drawString(months[mesNext], x, y2);;
+            if (hora == 11 && min == 59 && ampm == 1 && mes != month_next) {
+                g2d.drawString(months[mes], x, y2);
+                g2d.drawString(months[month_next], x, y3);
+            } else {
+                g2d.drawString(months[mes], x, y);
             }
-            g2d.drawString(months[mes], x, y);
 
             g2d.setClip(savedClip);
 
             g2d.dispose();
+
             dirty = false;
         }
     }
 
-    
     private class ClockHands {
 
         private Rectangle bounds;
@@ -702,8 +708,8 @@ public class JavaWatchOOP extends JPanel {
             int ySeg = (int) ((0.8 * radius) * sin(seg));
             int xMin = (int) ((0.7 * radius) * cos(min));
             int yMin = (int) ((0.7 * radius) * sin(min));
-            int xHora = (int) ((0.5 * radius) * Math.cos(Math.toRadians((270 + hora * (360 / 12)) % 360)));
-            int yHora = (int) ((0.5 * radius) * Math.sin(Math.toRadians((270 + hora * (360 / 12)) % 360)));
+            int xHora = (int) ((0.5 * radius) * Math.cos(Math.toRadians(((270 + hora * (360 / 12)) + (min * (360f / 12 / 60))) % 360)));
+            int yHora = (int) ((0.5 * radius) * Math.sin(Math.toRadians((270 + hora * (360 / 12) + min * (360f / 12 / 60)) % 360)));
 
             //dibujar manecillas
             //--sombras
@@ -740,7 +746,7 @@ public class JavaWatchOOP extends JPanel {
         }
 
     }
-    
+
     public void panelResized() {
         Rectangle bounds = getBounds();
 
@@ -806,7 +812,7 @@ public class JavaWatchOOP extends JPanel {
     }
 
     private void stopTimer() {
-        watchTimer.timer.stop();
+        watchTimer.stop();
     }
 
     @Override
@@ -825,7 +831,7 @@ public class JavaWatchOOP extends JPanel {
         JavaWatchOOP mainPanel = new JavaWatchOOP();
 
         SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("JavaWatch1");
+            JFrame frame = new JFrame("JavaWatch - By Fabio");
             frame.setMinimumSize(new Dimension(400, 400));
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frame.addWindowListener(new WindowAdapter() {
