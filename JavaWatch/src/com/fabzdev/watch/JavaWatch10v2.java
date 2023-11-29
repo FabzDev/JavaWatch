@@ -176,14 +176,20 @@ public class JavaWatch10v2 extends JPanel {
         seg = time.get(Calendar.SECOND);
         ampm = time.get(Calendar.AM_PM);
 
-        if (hora == 12 && min == 59 && ampm == 1) {
+        hora = 11;
+        min = 59;
+        ampm = 1;
+        
+        if (hora == 11 && min == 59 && ampm == 1) {
             updatingCalendar = true;
             time.add(Calendar.DATE, 1);
             diaNext = time.get(Calendar.DAY_OF_MONTH);
             mesNext = time.get(Calendar.MONTH);
+            System.out.println(diaNext + " " + mesNext);
         } else {
             updatingCalendar = false;
         }
+        
     }
 
     //actualizar imagen base (fondo, numeros, firmamento, etc)
@@ -280,6 +286,9 @@ public class JavaWatch10v2 extends JPanel {
         g2d.setFont(g2d.getFont().deriveFont(titleFont[sizeIndicator]));
         Rectangle2D borderTitle = g2d.getFontMetrics().getStringBounds("JavaWatch", g2d);
         g2d.drawString("JavaWatch", (float) (centerX - borderTitle.getWidth() / 2), (float) (centerY + radius * 0.2));
+
+        //dibujar calendario
+        drawCalendar(g2d, frame);
 
         //cerrar el entorno de dibujo e la imagen
         g2d.dispose();
@@ -426,11 +435,13 @@ public class JavaWatch10v2 extends JPanel {
 
     //dibujar el calendario
     private void drawCalendar(Graphics2D g2dBack, Rectangle frame) {
+        System.out.println("Dibujando calendario");
+
         //definir tamaños de fuente
         updateCalendarMetrics(g2dBack);
 
         //crear rectangulo fondo del calendario
-        Rectangle calendarFrame = new Rectangle(0, 0, calDaySize.width + calMonthSize.width + 8 * 3, calDaySize.height);
+        calendarFrame = new Rectangle(0, 0, calDaySize.width + calMonthSize.width + 8 * 3, calDaySize.height);
         calendarFrame.x = (frame.x + frame.width / 2 - calendarFrame.width / 2);
         calendarFrame.y = (frame.height / 2 + (int) (frame.height / 2 * 0.3f));
 
@@ -449,16 +460,25 @@ public class JavaWatch10v2 extends JPanel {
         g2dBack.setColor(labelCalColor);
         g2dBack.setFont(calendarFont[sizeIndicator]);
         FontMetrics fm = g2dBack.getFontMetrics();
-        
+
         //dia
         int x = calendarFrame.x + 8;
         int y = calendarFrame.y + fm.getAscent();
-        g2dBack.drawString(dia < 10 ? "0" + dia: String.valueOf(dia), x, y);
+
+        if (hora == 11 && min == 59 && ampm == 1) {
+            y = y - (int) (rr.getHeight() / 60 * seg);
+        }
+        g2dBack.drawString(dia < 10 ? "0" + dia : String.valueOf(dia), x, y);
 
         //mes
-        x = calendarFrame.x + 8 + calDaySize.width +8;
+        x = calendarFrame.x + 8 + calDaySize.width + 8;
+
+        y = calendarFrame.y + fm.getAscent();
+        if (hora == 11 && min == 59 && ampm == 1 && mes != mesNext) {
+            y = y - (int) (rr.getHeight() / 60 * seg);
+        }
         g2dBack.drawString(months[mes], x, y);
-        
+
         g2dBack.setClip(savedClip);
 
     }
@@ -492,13 +512,11 @@ public class JavaWatch10v2 extends JPanel {
         }
         lastMinute = min;
 
-        if (hora == 11 && min == 59) {
+        if (hora == 11 && min == 59 && ampm == 1) {
             updatingCalendar = true;
         } else {
             updatingCalendar = false;
         }
-
-        updatingCalendar = true; // HARDCODEANDO UPDATING CALENDAR ******************************************************************************
 
         //optimizando updateDayNightImg and updatingCalendar
         if (rotateDayNightImg || updatingCalendar) {
